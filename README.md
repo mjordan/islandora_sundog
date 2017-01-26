@@ -1,4 +1,10 @@
-The following will update the dc.description field in the Solr document for PID newpdf:5:
+# Islandora Sundog
+
+Experimental module that adds fields to Solr by bypassing Fedora GSearch. The motivation for doing this is that adding custom fields to Solr is typically done by modifying the XSLT stylesheets invoked by GSearch. This requires access to the server GSearch is running on, and also... modifying XSLT stylesheets. This module implements some alternative ways of adding custom fields to Solr to improve searching and metadata display.
+
+# Background
+
+It is possible to update and add specific fields to Solr documents using HTTP calls to Solr's `/update` endpoint, such as:
 
 ```
 curl -v http://localhost:8080/solr/update -H 'Content-type:application/json' -d @test.json
@@ -9,31 +15,50 @@ where the file test.json contains:
 ```json
 [
  {"PID"       : "newpdf:5",
-  "dc.description"   : {"set":"I have been updated - correct?."}
+  "dc.description"   : {"set":"I have been updated."}
  }
 ]
 ```
 
-
-Perhaps more importantly, you can add entirely new fields that don't need to be defined in your schema to your Solr documents (and these new fields show up in the custom metadtata display and advanced search options - !!). With this test.json:
+Add new fields uses a similar operation. Significantly, it is possible to add entirely new fields that don't need to be defined in your Solr schema, and these new fields show up in Islandora's user interfaces for defining custom metadtata display and advanced search options. For example, with this test.json:
 
 ```json
 [
  {"PID"       : "newpdf:5",
-  "marktest"   : {"set":"Is this field showing up in Solr?"}
+  "footest"   : {"set":"Is this field showing up in Solr?"}
  }
 ]
 ```
 
-This shows up in my Solr document:
+This shows up in the Solr document for newpdf:5:
 
 ```xml
- <arr name="marktest">
+ <arr name="footest">
       <str>Is this field showing up in Solr?</str>
  </arr>
 ```
 
+However, there is a problem - this technique only works if the Solr document corresponding to an Islandora object already exists. Indexing Solr via GSearch after object ingestion or updaet takes a few seconds, so we we need to wait until GSearch has finished before we can add or update fields in a Solr document using Solr's `/update` HTTP endpoint. To work around this problem, we fire the HTTP request to `/update` in a background process that waits a specific amount of time (say 10 seconds) after object ingest or update.
 
-What this means is, it is possible to do some post-processing to tune your Solr index for better searching and display using custom fields. Probably the best place to issue these REST commands to Solr (via Islandora's Solr query API) would be in object and datastream ingested and modified hooks, although we need to confirm that the Solr document exists when the hook fires, or that changes to the Solr document aren't overwritten by a gsearch-based update, which I believe deletes and then regenerates the solr document.
+## Requirements
 
-This is just a proof of concept, but I'm definitely going to play with it some more. There's still the question of a user interface to configure localizations to Solr, but at least we don't need to futz with gsearch's XSLTs using this approach.
+* [Islandora](https://github.com/Islandora/islandora)
+* [Background Process](https://www.drupal.org/project/background_process)
+
+## Usage
+
+This module is currently highly experimental. All you need to do is enable it, there are no configuration options or user interface. However, those will come soon, once the basic technique this module illustrates is more robust.
+
+## Maintainer
+
+* [Mark Jordan](https://github.com/mjordan)
+
+## Development and feedback
+
+Pull requests are welcome, as are use cases and suggestions.
+
+## Further Development
+
+## License
+
+ [GPLv3](http://www.gnu.org/licenses/gpl-3.0.txt)

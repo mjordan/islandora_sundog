@@ -1,0 +1,7 @@
+name = "Islandora Sundog"
+description = "Experimental module for adding custom fields to directly Solr, bypassing Gsearch."
+package = Islandora Tools
+version = 7.x-dev
+core = 7.x
+dependencies[] = islandora
+dependencies[] = background_process

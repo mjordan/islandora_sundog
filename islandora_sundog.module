@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Module file.
+ */
+
+/**
+ * Implements hook_islandora_object_ingested().
+ */
+function islandora_sundog_islandora_object_ingested(AbstractObject $object) {
+  $handle = background_process_start('islandora_sundog_post_to_solr', $object->id);
+}
+
+/**
+ * Posts data to Solr.
+ *
+ * Functions defined in include files don't seem to work
+ * with background_process_start().
+ *
+ * @param string $pid
+ *   The PID of the Islandora object.
+ */
+function islandora_sundog_post_to_solr($pid) {
+  $url = 'http://localhost:8080/solr/update';
+  $data = array(
+    array(
+      'PID' => $pid,
+      'testfield_foo' => array('set' => 'I am a value; foo, to be exact')
+    )
+  );
+  $data = json_encode($data);
+  $options = array(
+    'method' => 'POST',
+    'data' => $data,
+    'headers' => array('Content-Type' => 'application/json; charset=UTF-8'),
+  );
+  // We need to delay updating the Solr document because it might not exist
+  // immediately.
+  sleep(10);
+  $result = drupal_http_request($url, $options);
+}
+
