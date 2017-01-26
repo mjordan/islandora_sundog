@@ -1,6 +1,6 @@
 # Islandora Sundog
 
-Experimental module that adds fields to Solr by bypassing Fedora GSearch. The motivation for doing this is that adding custom fields to Solr is typically done by modifying the XSLT stylesheets invoked by GSearch. This requires access to the server GSearch is running on, and also... modifying XSLT stylesheets. This module implements some alternative ways of adding custom fields to Solr to improve searching and metadata display.
+Experimental module that adds fields to Solr by bypassing Fedora GSearch. The motivation for doing this is that adding custom fields to Solr is typically done by modifying the XSLT stylesheets invoked by GSearch. This requires access to the server GSearch is running on, and also... modifying XSLT stylesheets on the server GSearch is running on. This module implements an alternative way of adding additional fields to Solr, for example, to customize searching and metadata display.
 
 # Background
 
@@ -20,7 +20,12 @@ where the file test.json contains:
 ]
 ```
 
-Add new fields uses a similar operation. Significantly, it is possible to add entirely new fields that don't need to be defined in your Solr schema, and these new fields show up in Islandora's user interfaces for defining custom metadtata display and advanced search options. For example, with this test.json:
+Add new fields uses a similar operation. Significantly, 
+
+1. it is possible to add entirely new fields that don't need to be defined in your Solr schema, and
+1. these new fields show up in Islandora's user interfaces for defining custom metadtata display and advanced search options.
+
+For example, with this test.json:
 
 ```json
 [
@@ -38,7 +43,7 @@ This shows up in the Solr document for newpdf:5:
  </arr>
 ```
 
-However, there is a problem - this technique only works if the Solr document corresponding to an Islandora object already exists. Indexing Solr via GSearch after object ingestion or updaet takes a few seconds, so we we need to wait until GSearch has finished before we can add or update fields in a Solr document using Solr's `/update` HTTP endpoint. To work around this problem, we fire the HTTP request to `/update` in a background process that waits a specific amount of time (say 10 seconds) after object ingest or update.
+However, there is a problem - this technique only works if the Solr document corresponding to an Islandora object already exists. Indexing Solr via GSearch after object ingestion or update takes a few seconds, so we we need to wait until GSearch has finished before we can add or update fields in a Solr document using Solr's `/update` HTTP endpoint. To work around this problem, we fire the HTTP request to `/update` in a background process that waits a specific amount of time (say 10 seconds), invisibly to the end user, after object/datastream ingest or update.
 
 ## Requirements
 
@@ -48,6 +53,11 @@ However, there is a problem - this technique only works if the Solr document cor
 ## Usage
 
 This module is currently highly experimental. All you need to do is enable it, there are no configuration options or user interface. However, those will come soon, once the basic technique this module illustrates is more robust.
+
+## To do
+
+* Add some useful examples of new Solr fields
+* Start thinking about a UI for allowing Islandora admins to control what goes in their custom Solr fields
 
 ## Maintainer
 
