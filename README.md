@@ -43,7 +43,12 @@ This shows up in the Solr document for newpdf:5:
  </arr>
 ```
 
-However, there is a problem - this technique only works if the Solr document corresponding to an Islandora object already exists. Indexing Solr via GSearch after object ingestion or update takes a few seconds, so we we need to wait until GSearch has finished before we can add or update fields in a Solr document using Solr's `/update` HTTP endpoint. To work around this problem, we fire the HTTP request to `/update` in a background process that waits a specific amount of time (say 10 seconds), invisibly to the end user, after object/datastream ingest or update.
+# Limitations
+
+This technique for adding data to an Islandora's Solr index has a couple of limitations:
+
+* it only works if the Solr document corresponding to an Islandora object already exists. Indexing Solr via GSearch after object ingestion or update takes a few seconds, so we cannot use Islandora's hook_islandora_object_ingested(), hook_islandora_datastream_modified(), etc. to add our data to Solr. Therefore, we wait until GSearch has finished before we add fields in a Solr document using Solr's `/update` HTTP endpoint. To work around this problem, we fire the HTTP request to `/update` in a background process that waits a specific amount of time (say 10 seconds), invisibly to the end user, after object/datastream ingest or update.
+* we can only add fields of the type "string" to Solr, and not "text", "boolean", etc. This means that Solr does no tokenization or other types of processing on the data. So for example, if we want our data to be normalized to lowercase, we need to do it ourselves before we add it to Solr.
 
 ## Requirements
 
@@ -52,12 +57,12 @@ However, there is a problem - this technique only works if the Solr document cor
 
 ## Usage
 
-This module is currently highly experimental. All you need to do is enable it, there are no configuration options or user interface. However, those will come soon, once the basic technique this module illustrates is more robust.
+This module is currently experimental. All you need to do is enable it, there are no configuration options or user interface. However, those will come soon, once the basic technique this module illustrates is more robust.
 
 ## To do
 
 * Add some useful examples of new Solr fields
-* Start thinking about a UI for allowing Islandora admins to control what goes in their custom Solr fields
+* Add a rudimentary UI for allowing Islandora admins to control what goes in their custom Solr fields
 
 ## Maintainer
 

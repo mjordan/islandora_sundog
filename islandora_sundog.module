@@ -9,14 +9,48 @@
  * Implements hook_islandora_object_ingested().
  */
 function islandora_sundog_islandora_object_ingested(AbstractObject $object) {
-  $handle = background_process_start('islandora_sundog_post_to_solr', $object->id);
+  background_process_start('islandora_sundog_post_to_solr', $object->id);
+}
+
+/**
+ * Implements hook_islandora_object_modified().
+ */
+function islandora_sundog_islandora_object_modified(AbstractObject $object) {
+  background_process_start('islandora_sundog_post_to_solr', $object->id);
+}
+
+/**
+ * Implements hook_islandora_datastream_ingested().
+ */
+function islandora_sundog_islandora_datastream_ingested(AbstractObject $object, AbstractDatastream $datastream) {
+  // Only fire this hook once, in order to eliminate redundant
+  // updates to the index.
+  $ingested = &drupal_static(__FUNCTION__);
+  if (!isset($ingested)) {
+    background_process_start('islandora_sundog_post_to_solr', $object->id);
+    $ingested = true;
+  }
+}
+
+/**
+ * Implements hook_islandora_datastream_modified()
+ */
+function islandora_sundog_islandora_datastream_modified(AbstractObject $object, AbstractDatastream $datastream, array $params) {
+  // Only fire this hook once, in order to eliminate redundant
+  // updates to the index.
+  $modified = &drupal_static(__FUNCTION__);
+  if (!isset($modified)) {
+    background_process_start('islandora_sundog_post_to_solr', $object->id);
+    $modified = true;
+  }
 }
 
 /**
  * Posts data to Solr.
  *
- * Functions defined in include files don't seem to work
- * with background_process_start().
+ * We include this function here and not in an .inc file because
+ * functions defined in include files don't seem to work with
+ * background_process_start().
  *
  * @param string $pid
  *   The PID of the Islandora object.
@@ -36,7 +70,7 @@ function islandora_sundog_post_to_solr($pid) {
     'headers' => array('Content-Type' => 'application/json; charset=UTF-8'),
   );
   // We need to delay updating the Solr document because it might not exist
-  // immediately.
+  // immediately after the _ingested() and _modified() hooks are fired.
   sleep(10);
   $result = drupal_http_request($url, $options);
 }
