@@ -6,11 +6,11 @@ Experimental module that adds fields to Solr by bypassing Fedora GSearch.
 
 ## The problem
 
-The motivation for doing this is that adding custom fields to Solr is typically done by modifying the XSLT stylesheets invoked by GSearch. This requires access to the server GSearch is running on, and also... modifying XSLT stylesheets on the server GSearch is running on. Islandora Sundog implements an alternative way of adding additional fields to Solr via a graphical user interface to customize searching and metadata display.
+Adding custom fields to Solr for the purpose of customizing search and metadata display is typically done by modifying the XSLT stylesheets invoked by GSearch. This poses significant challenges to many Islandora admins because it requires access to the server GSearch is running on, and it requires considerable XSLT chops. Islandora Sundog aims to implement an alternative way of adding locally-defined fields to Solr via a graphical user interface.
 
-## The solution
+## The technical solution
 
-It is possible to [update and add specific fields](https://cwiki.apache.org/confluence/display/solr/Updating+Parts+of+Documents) to Solr documents using calls to Solr's HTTP `/update` endpoint, such as:
+It is possible to [update and add specific fields](https://cwiki.apache.org/confluence/display/solr/Updating+Parts+of+Documents) to Solr documents using calls to Solr's `/update` HTTP endpoint, such as:
 
 ```
 curl -v http://localhost:8080/solr/update -H 'Content-type:application/json' -d @test.json
@@ -55,6 +55,7 @@ This technique for adding data to an Islandora's Solr index poses a couple of ch
 
 * it only works if the Solr document corresponding to an Islandora object already exists. Indexing Solr via GSearch after object ingestion or update takes a few seconds, so we cannot use Islandora's hook_islandora_object_ingested(), hook_islandora_datastream_modified(), etc. to add our data to Solr. Therefore, we wait until GSearch has finished before we add fields in a Solr document using Solr's `/update` HTTP endpoint. To work around this problem, we fire the HTTP request to `/update` in a background process that waits a specific amount of time (say 10 seconds), invisibly to the end user, after object/datastream ingest or update.
 * we can only add fields of the type "string" to Solr, and not "text", "boolean", etc. This means that Solr does no tokenization or other types of processing on the data. So for example, if we want our data to be normalized to lowercase, we need to do it ourselves before we add it to Solr. It is posible to add multivalued fields.
+* for it to serve as a viable alternative to manually modifying GSearch's XSLT stylesheets, we will need to provide a user interface that is both straight forward and flexible.
 
 # Requirements
 
@@ -66,7 +67,7 @@ This technique for adding data to an Islandora's Solr index poses a couple of ch
 
 This module is currently experimental and currently is intended mainly to demonstrate that adding custom fields to Solr is viable.
 
-In addition, we need to explore how a user interface for managing these custom fields would work. Currently, options for determining the field labels of two custom fields is available. The content of these fields is not configurable (one is the upper-cased version of the object's label, and the other is the object's PID namespace). To try these fields out:
+It is also intended to provide an opportunity to explore how a user interface for managing these custom fields would work. Currently, options for determining the field labels of two custom fields is available. The content of these fields is not configurable (one is the upper-cased version of the object's label, and the other is the object's PID namespace). To try these fields out:
 
 1. Go to the admin form at `admin/islandora/tools/sundog`. Enter the field labels you want for your two custom fields:
   * ![custom field labels](images/config.png)
