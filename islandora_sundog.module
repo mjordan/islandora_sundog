@@ -45,7 +45,7 @@ function islandora_sundog_islandora_datastream_ingested(AbstractObject $object, 
   $ingested = &drupal_static(__FUNCTION__);
   if (!isset($ingested)) {
     background_process_start('islandora_sundog_post_to_solr', $object->id);
-    $ingested = true;
+    $ingested = TRUE;
   }
 }
 
@@ -58,7 +58,7 @@ function islandora_sundog_islandora_datastream_modified(AbstractObject $object, 
   $modified = &drupal_static(__FUNCTION__);
   if (!isset($modified)) {
     background_process_start('islandora_sundog_post_to_solr', $object->id);
-    $modified = true;
+    $modified = TRUE;
   }
 }
 
@@ -73,7 +73,7 @@ function islandora_sundog_islandora_datastream_modified(AbstractObject $object, 
  *   The PID of the Islandora object.
  */
 function islandora_sundog_post_to_solr($pid) {
-  $url = 'http://localhost:8080/solr/update';
+  $url = variable_get('islandora_sundog_solr_url', 'http://localhost:8080/solr') . '/update';
   $object = islandora_object_load($pid);
 
   // Populating the data to POST to Solr is hard-coded here for
@@ -105,7 +105,8 @@ function islandora_sundog_post_to_solr($pid) {
   );
   // We need to delay updating the Solr document because it might not exist
   // immediately after the _ingested() and _modified() hooks are fired.
-  sleep(10);
+  $sleep = variable_get('islandora_sundog_update_delay', '10');
+  sleep($sleep);
   $result = drupal_http_request($url, $options);
 }
 

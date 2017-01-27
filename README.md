@@ -57,23 +57,25 @@ This technique for adding data to an Islandora's Solr index has a couple of limi
 
 ## Usage
 
-This module is currently experimental. All you need to do is enable it, there are no configuration options or user interface. However, those will come soon, once the basic technique this module illustrates is more robust.
+This module is currently experimental and currently is intended mainly to demonstrate that adding custom fields to Solr is viable.
 
-Currently, options for determining the field labels of two custom fields is available. The content of these fields is not configurable. To try these fields out:
+In addition, we need to explore how a user interface for managing these custom fields would work. Currently, options for determining the field labels of two custom fields is available. The content of these fields is not configurable (one is the upper-cased version of the object's label, and the other is the object's PID namespace). To try these fields out:
 
 1. Go to the admin form at `admin/islandora/tools/sundog`. Enter the field labels you want for your two custom fields:
   * ![custom field labels](images/config.png)
 1. Save your settings.
 1. Trigger the addition of these two fields to an object's Solr document by editing a datastream (MODS, for example).
-1. Visit your local Solr (http://localhost:8080/solr/#/collection1/query) to see the new fields. Query for the PID of the object you modified by entering the following in the query field: `PID:mypid\:1234` (where "mypid:1234" is the PID you want to query). Near the bottom of the results, you should see your custom fields:
+1. Visit your local Solr (for example, http://localhost:8080/solr/#/collection1/query) to see the new fields. Query for the PID of the object you modified by entering the following in the query field: `PID:mypid\:1234` (where "mypid:1234" is the PID you want to query). Near the bottom of the results, you should see your custom fields:
   * ![custom fields in Solr](images/solr_document.png)
-1. To see the custom fields show up in the Islandora Solr module's metadata display configuration tool, for example, try to add one of your custom fields to a metadata display:
+1. To see the custom fields show up in the Islandora Solr module's metadata display configuration tool, try to add one of your custom fields to a metadata display:
   * ![custom fields in Solr](images/add_custom_field_to_display.png)
 
 ## To do
 
-* Add some useful examples of new Solr fields
-* Add a rudimentary UI for allowing Islandora admins to control what goes in their custom Solr fields
+* Add more useful examples of new Solr fields
+* Develop some use cases for adding custom fields to Islandora's Solr index
+* Develop a better UI for allowing Islandora admins to control what goes in their custom Solr fields
+* Think about how to add custom fields to Sorl for more than one object (e.g., via a drush script or a batch UI)
 
 ## Maintainer
 
