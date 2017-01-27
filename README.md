@@ -4,7 +4,7 @@ Experimental module that adds fields to Solr by bypassing Fedora GSearch. The mo
 
 # Background
 
-It is possible to update and add specific fields to Solr documents using HTTP calls to Solr's `/update` endpoint, such as:
+It is possible to [update and add specific fields](https://cwiki.apache.org/confluence/display/solr/Updating+Parts+of+Documents) to Solr documents using calls to Solr's HTTP `/update` endpoint, such as:
 
 ```
 curl -v http://localhost:8080/solr/update -H 'Content-type:application/json' -d @test.json
@@ -48,7 +48,7 @@ This shows up in the Solr document for newpdf:5:
 This technique for adding data to an Islandora's Solr index has a couple of limitations:
 
 * it only works if the Solr document corresponding to an Islandora object already exists. Indexing Solr via GSearch after object ingestion or update takes a few seconds, so we cannot use Islandora's hook_islandora_object_ingested(), hook_islandora_datastream_modified(), etc. to add our data to Solr. Therefore, we wait until GSearch has finished before we add fields in a Solr document using Solr's `/update` HTTP endpoint. To work around this problem, we fire the HTTP request to `/update` in a background process that waits a specific amount of time (say 10 seconds), invisibly to the end user, after object/datastream ingest or update.
-* we can only add fields of the type "string" to Solr, and not "text", "boolean", etc. This means that Solr does no tokenization or other types of processing on the data. So for example, if we want our data to be normalized to lowercase, we need to do it ourselves before we add it to Solr.
+* we can only add fields of the type "string" to Solr, and not "text", "boolean", etc. This means that Solr does no tokenization or other types of processing on the data. So for example, if we want our data to be normalized to lowercase, we need to do it ourselves before we add it to Solr. It is posible to add multivalued fields.
 
 ## Requirements
 
@@ -58,6 +58,17 @@ This technique for adding data to an Islandora's Solr index has a couple of limi
 ## Usage
 
 This module is currently experimental. All you need to do is enable it, there are no configuration options or user interface. However, those will come soon, once the basic technique this module illustrates is more robust.
+
+Currently, options for determining the field labels of two custom fields is available. The content of these fields is not configurable. To try these fields out:
+
+1. Go to the admin form at `admin/islandora/tools/sundog`. Enter the field labels you want for your two custom fields:
+  * ![custom field labels](images/config.png)
+1. Save your settings.
+1. Trigger the addition of these two fields to an object's Solr document by editing a datastream (MODS, for example).
+1. Visit your local Solr (http://localhost:8080/solr/#/collection1/query) to see the new fields. Query for the PID of the object you modified by entering the following in the query field: `PID:mypid\:1234` (where "mypid:1234" is the PID you want to query). Near the bottom of the results, you should see your custom fields:
+  * ![custom fields in Solr](images/solr_document.png)
+1. To see the custom fields show up in the Islandora Solr module's metadata display configuration tool, for example, try to add one of your custom fields to a metadata display:
+  * ![custom fields in Solr](images/add_custom_field_to_display.png)
 
 ## To do
 

@@ -6,6 +6,23 @@
  */
 
 /**
+ * Implements hook_menu().
+ */
+function islandora_sundog_menu() {
+  $items = array();
+  $items['admin/islandora/tools/sundog'] = array(
+    'title' => 'Sundog',
+    'description' => 'Configure the Islandora Sundog module.',
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('administer site configuration'),
+    'page arguments' => array('islandora_sundog_admin_form'),
+    'file' => 'includes/admin.form.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
  * Implements hook_islandora_object_ingested().
  */
 function islandora_sundog_islandora_object_ingested(AbstractObject $object) {
@@ -57,12 +74,29 @@ function islandora_sundog_islandora_datastream_modified(AbstractObject $object, 
  */
 function islandora_sundog_post_to_solr($pid) {
   $url = 'http://localhost:8080/solr/update';
+  $object = islandora_object_load($pid);
+
+  // Populating the data to POST to Solr is hard-coded here for
+  // illustration purposes. We convert the object's label to all uppercase,
+  // and we parse out its namespace from its PID, and add these to the Solr
+  // index. To make this module usefule in the real world.
+  // we need to figure out how to let admins assemble the data they want
+  // to add to their Solr indexes.
+  $custom_label_field = variable_get('islandora_sundog_object_label_field', 'mycustomlabelfieldname');
+  $custom_namespace_field = variable_get('islandora_sundog_object_namespace_field', 'mycustomnamespacefieldname');
+  $label = strtoupper($object->label);
+  $namespace = preg_replace('/:.*$/', '', $pid);
   $data = array(
     array(
       'PID' => $pid,
-      'testfield_foo' => array('set' => 'I am a value; foo, to be exact')
-    )
+      $custom_label_field => array('set' => $label),
+    ),
+    array(
+      'PID' => $pid,
+      $custom_namespace_field => array('set' => $namespace)
+    ),
   );
+
   $data = json_encode($data);
   $options = array(
     'method' => 'POST',
