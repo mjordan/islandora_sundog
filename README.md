@@ -1,8 +1,14 @@
 # Islandora Sundog
 
-Experimental module that adds fields to Solr by bypassing Fedora GSearch. The motivation for doing this is that adding custom fields to Solr is typically done by modifying the XSLT stylesheets invoked by GSearch. This requires access to the server GSearch is running on, and also... modifying XSLT stylesheets on the server GSearch is running on. This module implements an alternative way of adding additional fields to Solr via a graphical user interface, for example, to customize searching and metadata display.
+Experimental module that adds fields to Solr by bypassing Fedora GSearch.
 
 # Background
+
+## The problem
+
+The motivation for doing this is that adding custom fields to Solr is typically done by modifying the XSLT stylesheets invoked by GSearch. This requires access to the server GSearch is running on, and also... modifying XSLT stylesheets on the server GSearch is running on. Islandora Sundog implements an alternative way of adding additional fields to Solr via a graphical user interface to customize searching and metadata display.
+
+## The solution
 
 It is possible to [update and add specific fields](https://cwiki.apache.org/confluence/display/solr/Updating+Parts+of+Documents) to Solr documents using calls to Solr's HTTP `/update` endpoint, such as:
 
@@ -43,19 +49,20 @@ This shows up in the Solr document for newpdf:5:
  </arr>
 ```
 
-# Limitations
+# Challenges
 
-This technique for adding data to an Islandora's Solr index has a couple of limitations:
+This technique for adding data to an Islandora's Solr index poses a couple of challenges:
 
 * it only works if the Solr document corresponding to an Islandora object already exists. Indexing Solr via GSearch after object ingestion or update takes a few seconds, so we cannot use Islandora's hook_islandora_object_ingested(), hook_islandora_datastream_modified(), etc. to add our data to Solr. Therefore, we wait until GSearch has finished before we add fields in a Solr document using Solr's `/update` HTTP endpoint. To work around this problem, we fire the HTTP request to `/update` in a background process that waits a specific amount of time (say 10 seconds), invisibly to the end user, after object/datastream ingest or update.
 * we can only add fields of the type "string" to Solr, and not "text", "boolean", etc. This means that Solr does no tokenization or other types of processing on the data. So for example, if we want our data to be normalized to lowercase, we need to do it ourselves before we add it to Solr. It is posible to add multivalued fields.
 
-## Requirements
+# Requirements
 
 * [Islandora](https://github.com/Islandora/islandora)
 * [Background Process](https://www.drupal.org/project/background_process)
+  * And its dependency [Progress](https://www.drupal.org/project/progress)
 
-## Usage
+# Usage
 
 This module is currently experimental and currently is intended mainly to demonstrate that adding custom fields to Solr is viable.
 
@@ -70,23 +77,24 @@ In addition, we need to explore how a user interface for managing these custom f
 1. To see the custom fields show up in the Islandora Solr module's metadata display configuration tool, try to add one of your custom fields to a metadata display:
   * ![custom fields in Solr](images/add_custom_field_to_display.png)
 
-Any custom fields that are configured will be added to Solr documents for objects that are newly ingested, objects whose properties (label, state, etc.) are changed, datastreams that are newly ingested, and datastreams whose properties are changed.
+Any custom fields that are configured will be added to Solr documents for objects that are newly ingested, objects whose properties (label, state, etc.) are changed, datastreams that are newly ingested, and datastreams whose content or properties are changed.
 
-## Further development
+# Further development
 
-* Add more useful examples of new Solr fields
+* Add more useful examples of new Solr fields (e.g., multivalued fields)
 * Develop some use cases for adding custom fields to Islandora's Solr index
-* Develop a better UI for allowing Islandora admins to control what goes in their custom Solr fields
+* Develop an effective UI for allowing Islandora admins to control what goes in their custom Solr fields
+* Define hooks that will allow other modules to generate custom Solr fields
 * Think about how to add custom fields to Sorl for more than one object (e.g., via a drush script or a batch UI)
 
-## Maintainer
+# Maintainer
 
 * [Mark Jordan](https://github.com/mjordan)
 
-## Development and feedback
+# Development and feedback
 
 Pull requests are welcome, as are use cases and suggestions.
 
-## License
+# License
 
  [GPLv3](http://www.gnu.org/licenses/gpl-3.0.txt)
