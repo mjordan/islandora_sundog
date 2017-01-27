@@ -1,6 +1,6 @@
 # Islandora Sundog
 
-Experimental module that adds fields to Solr by bypassing Fedora GSearch. The motivation for doing this is that adding custom fields to Solr is typically done by modifying the XSLT stylesheets invoked by GSearch. This requires access to the server GSearch is running on, and also... modifying XSLT stylesheets on the server GSearch is running on. This module implements an alternative way of adding additional fields to Solr, for example, to customize searching and metadata display.
+Experimental module that adds fields to Solr by bypassing Fedora GSearch. The motivation for doing this is that adding custom fields to Solr is typically done by modifying the XSLT stylesheets invoked by GSearch. This requires access to the server GSearch is running on, and also... modifying XSLT stylesheets on the server GSearch is running on. This module implements an alternative way of adding additional fields to Solr via a graphical user interface, for example, to customize searching and metadata display.
 
 # Background
 
@@ -70,7 +70,9 @@ In addition, we need to explore how a user interface for managing these custom f
 1. To see the custom fields show up in the Islandora Solr module's metadata display configuration tool, try to add one of your custom fields to a metadata display:
   * ![custom fields in Solr](images/add_custom_field_to_display.png)
 
-## To do
+Any custom fields that are configured will be added to Solr documents for objects that are newly ingested, objects whose properties (label, state, etc.) are changed, datastreams that are newly ingested, and datastreams whose properties are changed.
+
+## Further development
 
 * Add more useful examples of new Solr fields
 * Develop some use cases for adding custom fields to Islandora's Solr index
@@ -84,8 +86,6 @@ In addition, we need to explore how a user interface for managing these custom f
 ## Development and feedback
 
 Pull requests are welcome, as are use cases and suggestions.
-
-## Further Development
 
 ## License
 
